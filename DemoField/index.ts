@@ -122,25 +122,23 @@ export class DemoField implements ComponentFramework.StandardControl<IInputs, IO
     }
 
     private initializeCanvas(): void {
+        this.container.style.position = "relative";
         this.gridCanvas = document.createElement("canvas");
         Object.assign(this.gridCanvas.style, {
             position: "absolute",
             border: "1px solid #000",
-            x: "0",
-            y: "0",
-            zIndex: -1
+            left: "0",
+            top: "0",
         });
-        this.container.style.position = "relative"
         this.container.appendChild(this.gridCanvas);
         this.gridCtx = this.gridCanvas.getContext("2d")!;
 
         this.circleCanvas = document.createElement("canvas");
-        Object.assign(this.gridCanvas.style, {
+        Object.assign(this.circleCanvas.style, {
             position: "absolute",
-            border: "1px solid #000",
-            x: "0",
-            y: "0",
-            zIndex: 0
+            left: "0",
+            top: "0",
+            pointerEvents: "none",
         });
         this.container.appendChild(this.circleCanvas);
         this.circleCtx = this.circleCanvas.getContext("2d")!;
@@ -172,6 +170,7 @@ export class DemoField implements ComponentFramework.StandardControl<IInputs, IO
             fontSize: "12px",
             whiteSpace: "nowrap",
             pointerEvents: "none",
+            zIndex: 999,
             display: "none"
         });
 
@@ -180,9 +179,8 @@ export class DemoField implements ComponentFramework.StandardControl<IInputs, IO
 
     private attachCanvasClickHandler(): void {
         this.gridCanvas.addEventListener("click", (event: MouseEvent) => {
-            const rect = this.gridCanvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
+            const x = event.offsetX;
+            const y = event.offsetY;
 
             if (!this.isInsideGrid(x, y)) {
                 this.tooltip.style.display = "none";
@@ -260,11 +258,11 @@ export class DemoField implements ComponentFramework.StandardControl<IInputs, IO
     }
 
     private isInsideGrid(x: number, y: number): boolean {
-        const { margin, gridEnd } = this.getGridMetrics();
+        const { gridStart, gridEnd } = this.getGridMetrics();
         return (
-            x >= margin &&
+            x >= gridStart &&
             x <= gridEnd &&
-            y >= margin &&
+            y >= gridStart &&
             y <= gridEnd
         );
     }
